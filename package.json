@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev:summarizer": "tsx summarizer.ts",
+    "dev:ideator": "tsx ideator.ts",
+    "dev:client": "tsx client.ts",
+    "dev:all": "npm-run-all -p dev:summarizer dev:ideator dev:client",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,6 +21,10 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6"
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.7.4",
+    "npm-run-all": "^4.1.5",
+    "tsx": "^4.17.0",
+    "typescript": "^5.6.3"
   }
 }

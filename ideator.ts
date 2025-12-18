@@ -7,7 +7,7 @@ import { AGENT_CARD_PATH, AgentCard, Message } from '@a2a-js/sdk';
 import { agentCardHandler, jsonRpcHandler, restHandler, UserBuilder } from '@a2a-js/sdk/server/express';
 
 // Puerto del servidor; permite override por variable de entorno.
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 8081;
 const MODEL_URL = process.env.MODEL_URL || 'http://localhost:11434/api/generate';
 const MODEL_NAME = process.env.MODEL_NAME || 'llama3.1';
 

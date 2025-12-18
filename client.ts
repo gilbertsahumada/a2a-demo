@@ -2,6 +2,9 @@ import { MessageSendParams, SendMessageResponse } from "@a2a-js/sdk";
 import { A2AClient } from "@a2a-js/sdk/client";
 import { v4 } from "uuid";
 
+const SUMMARIZER_URL = process.env.SUMMARIZER_URL || "http://localhost:8080/";
+const IDEATOR_URL = process.env.IDEATOR_URL || "http://localhost:8081/";
+
 async function sendText(url: string, text: string) {
   const client = new A2AClient(url);
   const params: MessageSendParams = {
@@ -19,7 +22,8 @@ async function sendText(url: string, text: string) {
 
   const response: SendMessageResponse = await client.sendMessage(params);
   const msg = response.result;
-  return msg?.parts?.[0] ?? "";
+  const textPart = msg?.parts?.find((part) => part.kind === "text");
+  return textPart?.text ?? "";
 }
 
 async function main() {
@@ -30,10 +34,10 @@ async function main() {
   console.log("Episode source:", source);
 
   const sourceText = `Title: ${source.title}\nSeason: ${source.season}\nEpisode: ${source.episode}\nAirdate: ${source.airdate}\nDescription: ${source.description}`;
-  const summary = await sendText("http://localhost:8080/", sourceText);
+  const summary = await sendText(SUMMARIZER_URL, sourceText);
   console.log("\nGenerated summary\n", summary);
 
-  const ideas = await sendText("http://localhost:8081/", summary.text);
+  const ideas = await sendText(IDEATOR_URL, summary);
   console.log("\nGenerated ideas\n", ideas);
 }
 
