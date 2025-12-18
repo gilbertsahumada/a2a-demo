@@ -40,4 +40,4 @@ async function main() {
 main().catch((err) => {
   console.error("Error in main:", err);
   process.exit(1);
-}
+});
