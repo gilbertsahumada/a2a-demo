@@ -36,3 +36,8 @@ async function main() {
   const ideas = await sendText("http://localhost:8081/", summary.text);
   console.log("\nGenerated ideas\n", ideas);
 }
+
+main().catch((err) => {
+  console.error("Error in main:", err);
+  process.exit(1);
+}
