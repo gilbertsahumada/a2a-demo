@@ -8,6 +8,8 @@ import { agentCardHandler, jsonRpcHandler, restHandler, UserBuilder } from '@a2a
 
 // Puerto del servidor; permite override por variable de entorno.
 const PORT = process.env.PORT || 5000;
+const MODEL_URL = process.env.MODEL_URL || 'http://localhost:11434/api/generate';
+const MODEL_NAME = process.env.MODEL_NAME || 'llama3.1';
 
 // Agent Card A2A: describe al agente, capacidades y skills disponibles.
 const ideatorCard: AgentCard = {
@@ -35,30 +37,42 @@ const ideatorCard: AgentCard = {
 // Executor A2A: implementa la ejecucion de tareas y publica eventos.
 const executor: AgentExecutor = {
     cancelTask: async () => {},
-    execute: async (reqCtx: RequestContext, eventBus: ExecutionEventBus): Promise<void> => { 
-        // Extrae el primer "part" del mensaje del usuario (aca se usa "kind").
-        const text = reqCtx.userMessage?.parts?.[0]?.kind || '';
+    execute: async (reqCtx: RequestContext, eventBus: ExecutionEventBus): Promise<void> => {
+        // Extrae el texto de los "parts" del mensaje del usuario.
+        const text = (reqCtx.userMessage?.parts ?? [])
+            .filter((part) => part.kind === 'text')
+            .map((part) => part.text)
+            .join('\n')
+            .trim();
         const prompt = `Generate creative ideas based on the following input:\n\n${text}\n\nIdeas:`;
 
         // Llama a un modelo local (Ollama/compatible) para generar ideas.
-        const resp = await fetch("http://localhost:5000/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                model: "llama3.1",
-                prompt: prompt,
-                stream: false
-            })
-        })
-        .then((x) => x.json() as Promise<{ response: string }>)
-        .catch(() => ({ response: "Error generating ideas." }));
+        let responseText = 'Error generating ideas.';
+        try {
+            const resp = await fetch(MODEL_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: MODEL_NAME,
+                    prompt,
+                    stream: false,
+                }),
+            });
+
+            if (resp.ok) {
+                const data = (await resp.json()) as { response?: string };
+                responseText = data?.response ?? responseText;
+            }
+        } catch {
+            // Mantiene el mensaje de error por defecto.
+        }
 
         // Construye el mensaje A2A de respuesta para el bus de eventos.
         const message: Message = {
             kind: 'message',
             role: "agent",
             messageId: uuidv4(),
-            parts: [{ kind: 'text', text: resp.response }]
+            parts: [{ kind: 'text', text: responseText }]
         };
 
         // Publica el resultado y marca la tarea como finalizada.
@@ -79,10 +93,6 @@ app.use('/a2a/jsonrpc', jsonRpcHandler({ requestHandler, userBuilder: UserBuilde
 app.use('/a2a/rest', restHandler({ requestHandler, userBuilder: UserBuilder.noAuthentication }));
 
 // Arranque del servidor y URLs utiles.
-app.listen(PORT, () => {
-    console.log(`Ideator agent listening at http://localhost:${PORT}`);
-});
-
 app.listen(PORT, () => {
     console.log(`Ideator agent listening at http://localhost:${PORT}`);
     console.log(`Agent Card: http://localhost:${PORT}/${AGENT_CARD_PATH}`);
