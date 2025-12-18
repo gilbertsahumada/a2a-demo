@@ -21,8 +21,12 @@ async function sendText(url: string, text: string) {
   };
 
   const response: SendMessageResponse = await client.sendMessage(params);
-  const msg = response.result;
-  const textPart = msg?.parts?.find((part) => part.kind === "text");
+  if ("error" in response) {
+    throw new Error(response.error?.message ?? "A2A error");
+  }
+
+  const result = response.result as { parts?: { kind: string; text?: string }[] } | undefined;
+  const textPart = result?.parts?.find((part) => part.kind === "text");
   return textPart?.text ?? "";
 }
 
