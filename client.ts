@@ -2,8 +2,8 @@ import { Message, MessageSendParams } from "@a2a-js/sdk";
 import { ClientFactory } from "@a2a-js/sdk/client";
 import { v4 } from "uuid";
 
-const SUMMARIZER_URL = process.env.SUMMARIZER_URL || "http://localhost:8080/";
-const IDEATOR_URL = process.env.IDEATOR_URL || "http://localhost:8081/";
+const SUMMARIZER_URL = process.env.SUMMARIZER_URL || "http://localhost:8080";
+const IDEATOR_URL = process.env.IDEATOR_URL || "http://localhost:8081";
 
 async function sendText(url: string, text: string) {
   const factory = new ClientFactory();
@@ -22,6 +22,7 @@ async function sendText(url: string, text: string) {
   };
 
   const response = await client.sendMessage(params);
+  console.log("Raw response:", response);
   const result = response as Message;
   const responseText = (result.parts ?? [])
     .filter((part) => part.kind === "text")

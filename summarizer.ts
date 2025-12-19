@@ -81,6 +81,7 @@ const requestHandler = new DefaultRequestHandler(summarizerCard, store, executor
 const app = express();
 
 app.use(`/${AGENT_CARD_PATH}`, agentCardHandler({ agentCardProvider: requestHandler }));
+app.use('/', jsonRpcHandler({ requestHandler, userBuilder: UserBuilder.noAuthentication }))
 app.use('/a2a/jsonrpc', jsonRpcHandler({ requestHandler, userBuilder: UserBuilder.noAuthentication }))
 app.use('/a2a/rest', restHandler({ requestHandler, userBuilder: UserBuilder.noAuthentication}))
 
