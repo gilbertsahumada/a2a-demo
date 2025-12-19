@@ -38,15 +38,16 @@ async function main() {
     .then(async(res) => {
       return res.json();
     })
-    .then((data) => data.results[Math.floor(Math.random() * data.results.length)])
+    .then((data) => data.results[0])
     .catch((err) => {
       console.error("Error fetching episode data:", err);
       throw err;
     });
 
-  console.log("Episode source:", source);
-
-  const sourceText = `Title: ${source.title}\nSeason: ${source.season}\nEpisode: ${source.episode}\nAirdate: ${source.airdate}\nDescription: ${source.description}`;
+  console.log("Fetched episode data:", source);
+    
+  const sourceText = `Name: ${source.name}\nSeason: ${source.season}\nEpisode: ${source.episode_numer}\nSynopsis: ${source.synopsis}`;
+  console.log("Source text:\n", sourceText);
   const summary = await sendText(SUMMARIZER_URL, sourceText);
   console.log("\nGenerated summary\n", summary);
 
