@@ -43,8 +43,6 @@ async function main() {
       console.error("Error fetching episode data:", err);
       throw err;
     });
-
-  console.log("Fetched episode data:", source);
     
   const sourceText = `Name: ${source.name}\nSeason: ${source.season}\nEpisode: ${source.episode_numer}\nSynopsis: ${source.synopsis}`;
   console.log("Source text:\n", sourceText);

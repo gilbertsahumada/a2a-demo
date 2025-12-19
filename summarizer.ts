@@ -38,15 +38,12 @@ const summarizerCard: AgentCard = {
 const executor: AgentExecutor = {
     cancelTask: async () => {},
     execute: async (reqCtx: RequestContext, eventBus: ExecutionEventBus): Promise<void> => { 
-        console.log("Request context received:", reqCtx);
         // Extrae todos los "parts" de texto del mensaje del usuario.
         const text = (reqCtx.userMessage?.parts ?? [])
             .filter((part) => part.kind === 'text')
             .map((part) => part.text)
             .join('\n')
             .trim();
-
-        console.log("Extracted text for summarization:", text);
 
         const prompt = `Summarize the following text in a concise manner:\n\n${text}\n\nSummary:`;
 
