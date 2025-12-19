@@ -9,7 +9,7 @@ import { agentCardHandler, jsonRpcHandler, restHandler, UserBuilder } from '@a2a
 // Puerto del servidor; permite override por variable de entorno.
 const PORT = Number(process.env.PORT) || 8081;
 const MODEL_URL = process.env.MODEL_URL || 'http://localhost:11434/api/generate';
-const MODEL_NAME = process.env.MODEL_NAME || 'llama3.1';
+const MODEL_NAME = process.env.MODEL_NAME || 'llama2';
 
 // Agent Card A2A: describe al agente, capacidades y skills disponibles.
 const ideatorCard: AgentCard = {

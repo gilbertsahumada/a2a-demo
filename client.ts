@@ -1,12 +1,13 @@
-import { MessageSendParams, SendMessageResponse } from "@a2a-js/sdk";
-import { A2AClient } from "@a2a-js/sdk/client";
+import { Message, MessageSendParams } from "@a2a-js/sdk";
+import { ClientFactory } from "@a2a-js/sdk/client";
 import { v4 } from "uuid";
 
 const SUMMARIZER_URL = process.env.SUMMARIZER_URL || "http://localhost:8080/";
 const IDEATOR_URL = process.env.IDEATOR_URL || "http://localhost:8081/";
 
 async function sendText(url: string, text: string) {
-  const client = new A2AClient(url);
+  const factory = new ClientFactory();
+  const client = await factory.createFromUrl(url);
   const params: MessageSendParams = {
     message: {
       kind: "message",
@@ -20,20 +21,27 @@ async function sendText(url: string, text: string) {
     },
   };
 
-  const response: SendMessageResponse = await client.sendMessage(params);
-  if ("error" in response) {
-    throw new Error(response.error?.message ?? "A2A error");
-  }
+  const response = await client.sendMessage(params);
+  const result = response as Message;
+  const responseText = (result.parts ?? [])
+    .filter((part) => part.kind === "text")
+    .map((part) => part.text)
+    .join("\n")
+    .trim();
 
-  const result = response.result as { parts?: { kind: string; text?: string }[] } | undefined;
-  const textPart = result?.parts?.find((part) => part.kind === "text");
-  return textPart?.text ?? "";
+  return responseText;
 }
 
 async function main() {
   const source = await fetch("https://thesimpsonsapi.com/api/episodes")
-    .then((res) => res.json())
-    .then((data) => data[Math.floor(Math.random() * data.length)]);
+    .then(async(res) => {
+      return res.json();
+    })
+    .then((data) => data.results[Math.floor(Math.random() * data.results.length)])
+    .catch((err) => {
+      console.error("Error fetching episode data:", err);
+      throw err;
+    });
 
   console.log("Episode source:", source);
 
